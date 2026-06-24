@@ -109,8 +109,13 @@ export default function Home() {
 
   if (!loaded) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#f0f2f5]">
-        <div className="text-[#5a6278] text-sm font-semibold">Loading...</div>
+      <div className="flex items-center justify-center h-screen bg-[#f4f6f9]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center animate-pulse">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+          </div>
+          <div className="text-[#9ca3af] text-sm font-medium">Loading workspace...</div>
+        </div>
       </div>
     );
   }
@@ -130,20 +135,20 @@ export default function Home() {
         />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Toolbar */}
-          <div className="flex items-center gap-2.5 px-5 py-2.5 bg-[#f0f2f5] shrink-0">
-            <div className="relative flex-1 max-w-[280px]">
-              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[#9aa0b8] w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <div className="flex items-center gap-2.5 px-5 py-3 bg-white/60 backdrop-blur-sm border-b border-[#e5e7eb]/50 shrink-0">
+            <div className="relative flex-1 max-w-[300px]">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] w-[14px] h-[14px] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
               <input
-                className="w-full py-2 pr-2.5 pl-8 bg-white border border-[#e0e4ec] rounded-lg text-[#1a1e2e] text-[13px] outline-none focus:border-[#2563eb] focus:shadow-[0_0_0_3px_rgba(37,99,235,.13)] shadow-[0_1px_3px_rgba(26,30,46,.07)]"
-                placeholder="Search jobs, clients..."
+                className="w-full py-[7px] pr-3 pl-9 bg-[#f8fafc] border border-[#e5e7eb] rounded-xl text-[#111827] text-[13px] outline-none focus:border-[#3b82f6] focus:shadow-[0_0_0_3px_rgba(59,130,246,.08)] focus:bg-white transition-all placeholder:text-[#c4c9d4]"
+                placeholder="Search jobs, clients, descriptions..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <select
-              className="py-2 px-2.5 bg-white border border-[#e0e4ec] rounded-lg text-[#5a6278] text-[13px] outline-none cursor-pointer shadow-[0_1px_3px_rgba(26,30,46,.07)] focus:border-[#2563eb]"
+              className="py-[7px] px-3 bg-[#f8fafc] border border-[#e5e7eb] rounded-xl text-[#6b7280] text-[13px] outline-none cursor-pointer focus:border-[#3b82f6] transition-all"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
@@ -153,7 +158,7 @@ export default function Home() {
               ))}
             </select>
             <select
-              className="py-2 px-2.5 bg-white border border-[#e0e4ec] rounded-lg text-[#5a6278] text-[13px] outline-none cursor-pointer shadow-[0_1px_3px_rgba(26,30,46,.07)] focus:border-[#2563eb]"
+              className="py-[7px] px-3 bg-[#f8fafc] border border-[#e5e7eb] rounded-xl text-[#6b7280] text-[13px] outline-none cursor-pointer focus:border-[#3b82f6] transition-all"
               value={clientFilter}
               onChange={(e) => setClientFilter(e.target.value)}
             >
@@ -162,9 +167,11 @@ export default function Home() {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            <span className="text-xs text-[#9aa0b8] font-semibold ml-auto">
-              {filtered.length} project{filtered.length !== 1 ? "s" : ""}
-            </span>
+            <div className="ml-auto flex items-center gap-1.5 bg-[#f1f5f9] px-2.5 py-1 rounded-lg">
+              <span className="text-[12px] text-[#6b7280] font-medium">Showing</span>
+              <span className="text-[12px] text-[#111827] font-bold tabular-nums">{filtered.length}</span>
+              <span className="text-[12px] text-[#6b7280] font-medium">project{filtered.length !== 1 ? "s" : ""}</span>
+            </div>
           </div>
 
           {/* Views */}
