@@ -1,17 +1,19 @@
 "use client";
 
-import { TabName, Project, STATUS_CONFIG } from "@/lib/types";
+import { TabName, Project } from "@/lib/types";
 import { ReactNode } from "react";
 
 interface Props {
   currentTab: TabName;
   onTabChange: (tab: TabName) => void;
   projects: Project[];
+  onImportJson: () => void;
+  onExportJson: () => void;
 }
 
 const TABS: { id: TabName; label: string; icon: ReactNode }[] = [
   {
-    id: "table", label: "Table View",
+    id: "table", label: "Jobs",
     icon: <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>
   },
   {
@@ -19,12 +21,12 @@ const TABS: { id: TabName; label: string; icon: ReactNode }[] = [
     icon: <><rect x="3" y="3" width="5" height="18" rx="1" /><rect x="10" y="3" width="5" height="12" rx="1" /><rect x="17" y="3" width="5" height="15" rx="1" /></>
   },
   {
-    id: "summary", label: "Dashboard",
+    id: "summary", label: "Summary",
     icon: <><path d="M18 20V10M12 20V4M6 20v-6" /></>
   },
   {
     id: "gantt", label: "Timeline",
-    icon: <><path d="M3 6h18M3 12h12M3 18h8" /></>
+    icon: <><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></>
   },
   {
     id: "people", label: "People",
@@ -32,64 +34,66 @@ const TABS: { id: TabName; label: string; icon: ReactNode }[] = [
   },
 ];
 
-export default function Sidebar({ currentTab, onTabChange, projects }: Props) {
-  const counts = {
-    todo: projects.filter((p) => p.status === "todo").length,
-    active: projects.filter((p) => p.status === "active").length,
-    inprogress: projects.filter((p) => p.status === "inprogress").length,
-    done: projects.filter((p) => p.status === "done").length,
-  };
+const FOOTER_BTNS: { label: string; icon: ReactNode }[] = [
+  { label: "Link Excel File", icon: <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /> },
+  { label: "Import Excel", icon: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></> },
+  { label: "Change Folder", icon: <><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></> },
+  { label: "Open Folder", icon: <><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /><path d="M2 10h20" /></> },
+  { label: "Colour Theme", icon: <><circle cx="12" cy="12" r="10" /><path d="M12 2a7 7 0 0 0 0 20 4 4 0 0 1 0-8 4 4 0 0 0 0-8" /></> },
+];
 
+export default function Sidebar({ currentTab, onTabChange, projects, onImportJson, onExportJson }: Props) {
   return (
     <aside
-      className="w-[200px] flex flex-col shrink-0 overflow-y-auto overflow-x-hidden"
-      style={{ background: "linear-gradient(180deg, #0f172a 0%, #162032 100%)" }}
+      className="w-[190px] flex flex-col shrink-0 overflow-y-auto overflow-x-hidden"
+      style={{ background: "linear-gradient(180deg, #0f1a2e 0%, #162032 100%)" }}
     >
-      <div className="py-3 flex-1">
-        <span className="block text-[9px] font-extrabold text-white/20 uppercase tracking-[.14em] px-5 pt-2 pb-2">
-          Views
+      <div className="py-2 flex-1">
+        <span className="block text-[9px] font-extrabold text-white/25 uppercase tracking-[.14em] px-4 pt-3 pb-2">
+          Navigation
         </span>
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
-            className={`flex items-center gap-2.5 w-full py-[9px] px-5 border-none text-[13px] font-semibold cursor-pointer transition-all text-left tracking-tight relative ${
+            className={`flex items-center gap-2.5 w-full py-[9px] px-4 border-none text-[13px] font-semibold cursor-pointer transition-all text-left tracking-tight relative ${
               currentTab === tab.id
-                ? "text-white bg-white/[.08]"
-                : "text-white/40 hover:text-white/70 hover:bg-white/[.04]"
+                ? "text-white bg-white/[.08] border-l-[3px] border-l-[#2563eb]"
+                : "text-white/50 border-l-[3px] border-l-transparent hover:text-white/80 hover:bg-white/[.04]"
             }`}
           >
-            {currentTab === tab.id && (
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full" style={{ background: "linear-gradient(180deg, #3b82f6, #8b5cf6)" }} />
-            )}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-opacity ${currentTab === tab.id ? "opacity-100" : "opacity-50"}`}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 ${currentTab === tab.id ? "opacity-100" : "opacity-60"}`}>
               {tab.icon}
             </svg>
             {tab.label}
+            {tab.id === "table" && (
+              <span className={`ml-auto text-[10px] font-bold px-[7px] py-[1px] rounded-full ${
+                currentTab === tab.id ? "bg-[rgba(37,99,235,.6)] text-white" : "bg-white/15 text-white/60"
+              }`}>
+                {projects.length}
+              </span>
+            )}
           </button>
-        ))}
-
-        <div className="mx-5 my-3 h-px bg-white/[.06]" />
-
-        <span className="block text-[9px] font-extrabold text-white/20 uppercase tracking-[.14em] px-5 pb-2">
-          Status
-        </span>
-        {(Object.entries(STATUS_CONFIG) as [string, typeof STATUS_CONFIG[keyof typeof STATUS_CONFIG]][]).map(([key, cfg]) => (
-          <div key={key} className="flex items-center gap-2.5 px-5 py-[5px] group">
-            <span className="w-[7px] h-[7px] rounded-full shrink-0 ring-2 ring-transparent group-hover:ring-white/10 transition-all" style={{ background: cfg.color }} />
-            <span className="text-[12px] text-white/35 font-medium flex-1 group-hover:text-white/55 transition-colors">{cfg.label}</span>
-            <span className="text-[10px] font-bold px-[6px] py-[1px] rounded-md bg-white/[.06] text-white/40 tabular-nums">
-              {counts[key as keyof typeof counts]}
-            </span>
-          </div>
         ))}
       </div>
 
-      {/* Footer */}
-      <div className="px-5 py-3 border-t border-white/[.05]">
-        <div className="text-[10px] text-white/15 font-medium text-center tracking-wide">
-          TE Work Management v1.0
-        </div>
+      {/* Footer buttons */}
+      <div className="px-2.5 pb-3 pt-2 border-t border-white/[.06] flex flex-col gap-[5px]">
+        {FOOTER_BTNS.map((btn, i) => (
+          <button
+            key={btn.label}
+            onClick={() => {
+              if (i === 1) onImportJson();
+              if (i === 2) onExportJson();
+            }}
+            className="flex items-center gap-2 w-full py-[7px] px-3 bg-white/[.05] border border-white/[.08] text-white/50 text-[11px] font-semibold cursor-pointer rounded-lg transition-all hover:bg-white/[.1] hover:text-white/80 hover:border-white/[.15] text-left"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-60">
+              {btn.icon}
+            </svg>
+            {btn.label}
+          </button>
+        ))}
       </div>
     </aside>
   );

@@ -132,46 +132,64 @@ export default function Home() {
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           projects={projects}
+          onImportJson={() => {
+            const input = document.createElement("input");
+            input.type = "file"; input.accept = ".json";
+            input.onchange = async (e) => {
+              const file = (e.target as HTMLInputElement).files?.[0];
+              if (!file) return;
+              const text = await file.text();
+              try {
+                const imported = JSON.parse(text) as Project[];
+                if (Array.isArray(imported)) { persist(imported.map(ensurePhaseTasks)); }
+              } catch { alert("Invalid JSON file"); }
+            };
+            input.click();
+          }}
+          onExportJson={() => {
+            const blob = new Blob([JSON.stringify(projects, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a"); a.href = url; a.download = "projects.json"; a.click();
+            URL.revokeObjectURL(url);
+          }}
         />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Toolbar */}
-          <div className="flex items-center gap-2.5 px-5 py-3 bg-white/60 backdrop-blur-sm border-b border-[#e5e7eb]/50 shrink-0">
-            <div className="relative flex-1 max-w-[300px]">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af] w-[14px] h-[14px] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+          <div className="flex items-center gap-3 px-5 py-2.5 bg-[#f4f6f9] border-b border-[#e8eaf0] shrink-0">
+            <div className="relative flex-1 max-w-[320px]">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#b0b8c9] w-[14px] h-[14px] pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
               </svg>
               <input
-                className="w-full py-[7px] pr-3 pl-9 bg-[#f8fafc] border border-[#e5e7eb] rounded-xl text-[#111827] text-[13px] outline-none focus:border-[#3b82f6] focus:shadow-[0_0_0_3px_rgba(59,130,246,.08)] focus:bg-white transition-all placeholder:text-[#c4c9d4]"
-                placeholder="Search jobs, clients, descriptions..."
+                className="w-full py-2 pr-3 pl-9 bg-white border border-[#dde1ea] rounded-lg text-[#1a1e2e] text-[13px] outline-none focus:border-[#2563eb] focus:shadow-[0_0_0_3px_rgba(37,99,235,.1)] transition-all placeholder:text-[#b0b8c9]"
+                placeholder="Search job #, client, description..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <select
-              className="py-[7px] px-3 bg-[#f8fafc] border border-[#e5e7eb] rounded-xl text-[#6b7280] text-[13px] outline-none cursor-pointer focus:border-[#3b82f6] transition-all"
+              className="py-2 px-3 bg-white border border-[#dde1ea] rounded-lg text-[#5a6278] text-[13px] outline-none cursor-pointer focus:border-[#2563eb] transition-all"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">All Status</option>
+              <option value="all">All statuses</option>
               {Object.entries(STATUS_CONFIG).map(([k, v]) => (
                 <option key={k} value={k}>{v.label}</option>
               ))}
             </select>
             <select
-              className="py-[7px] px-3 bg-[#f8fafc] border border-[#e5e7eb] rounded-xl text-[#6b7280] text-[13px] outline-none cursor-pointer focus:border-[#3b82f6] transition-all"
+              className="py-2 px-3 bg-white border border-[#dde1ea] rounded-lg text-[#5a6278] text-[13px] outline-none cursor-pointer focus:border-[#2563eb] transition-all"
               value={clientFilter}
               onChange={(e) => setClientFilter(e.target.value)}
             >
-              <option value="all">All Clients</option>
+              <option value="all">All clients</option>
               {clients.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            <div className="ml-auto flex items-center gap-1.5 bg-[#f1f5f9] px-2.5 py-1 rounded-lg">
-              <span className="text-[12px] text-[#6b7280] font-medium">Showing</span>
-              <span className="text-[12px] text-[#111827] font-bold tabular-nums">{filtered.length}</span>
-              <span className="text-[12px] text-[#6b7280] font-medium">project{filtered.length !== 1 ? "s" : ""}</span>
-            </div>
+            <span className="text-[12px] text-[#8892a8] font-semibold ml-auto">
+              {filtered.length} jobs
+            </span>
           </div>
 
           {/* Views */}
@@ -205,7 +223,7 @@ export default function Home() {
                 <GanttView projects={filtered} onSelect={setSelectedId} />
               )}
               {currentTab === "people" && (
-                <PeopleView projects={projects} contacts={contacts} onSelect={setSelectedId} />
+                <PeopleView projects={projects} contacts={contacts} onSelect={setSelectedId} onManageContacts={() => setShowContacts(true)} />
               )}
             </div>
 
